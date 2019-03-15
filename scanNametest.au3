@@ -10,8 +10,9 @@ while true
    $testLen = StringLen($file)
 
    if $testLen > 24 Then
+	  Local $sAnswer = InputBox("Quickbooks", "Please enter the invoice or company name", "", "", - 1, -1, 0, 0)
 	  $newTxt = StringSplit($file, "")
-	  $newName = "INVSCAN" & $newTxt[10] & "." & $newTxt[14] & $newTxt[15] & "T" & $newTxt[25] & $newTxt[26] & $newTxt[30] & $newTxt[31] & $newTxt[35] & $newTxt[36]
+	  $newName = "INVSCAN_" & $sAnswer & "_T" & $newTxt[25] & $newTxt[26] & $newTxt[30] & $newTxt[31] & $newTxt[35] & $newTxt[36]
 	  ConsoleWrite("Trying:  " & $file & "    " & $newName)
 	  FileMove( "C:\scans\" & $file , "C:\scans\" & $newName & ".pdf" )
    endif
