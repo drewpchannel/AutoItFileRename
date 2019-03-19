@@ -10,7 +10,7 @@ while true
    $file = FileFindNextFile($file)
    $testLen = StringLen($file)
 
-   if $testLen > 24 Then
+   if $testLen <> 0 Then
 	  Local $sAnswer = InputBox("Quickbooks", "Please enter the invoice or company name", "", "", - 1, -1, 0, 0)
 	  $newTxt = StringSplit($file, "")
 	  $curTime = _NowTime()
