@@ -1,39 +1,51 @@
 #include <MsgBoxConstants.au3>
 #Include <Array.au3>
 #include <Date.au3>
-
-Func askDelPage()
-   $adpResults = MsgBox (4, "If there are additional pages..." ,"Would you like to delete everything but the first page?")
-   If $adpResults = 6 Then
-	  Return $adpResults
-   ElseIf $adpResults = 7 Then
-      ConsoleWrite("no")
-   EndIf
-EndFunc
+#include <ButtonConstants.au3>
+#include <EditConstants.au3>
+#include <GUIConstantsEx.au3>
+#include <WindowsConstants.au3>
 
 while true
    FileChangeDir("C:\scans\")
    Global $newTxt[2] = ["g", "l"]
-
    $file = FileFindFirstFile("C:\scans\k*.pdf")
    $file = FileFindNextFile($file)
    $testLen = StringLen($file)
-
    if $testLen <> 0 Then
-	  Local $sAnswer = InputBox("Quickbooks", "Please enter the invoice or company name", "", "", - 1, -1, 0, 0)
+	  ConsoleWrite("Found K PDF")
+	  $inputInfo = Null
+	  $ifFirstOnly = Null
+	  		$Form1 = GUICreate("Enter Invoice Number", 306, 132, 192, 124)
+		$Input1 = GUICtrlCreateInput("", 24, 24, 257, 21)
+		$Checkbox1 = GUICtrlCreateCheckbox("Check to only keep the first page", 32, 56, 241, 25)
+		$Button1 = GUICtrlCreateButton("Ok", 104, 88, 75, 25)
+	  While $inputInfo == Null
+		GUISetState(@SW_SHOW)
+		$nMsg = GUIGetMsg()
+		Switch $nMsg
+			Case $GUI_EVENT_CLOSE
+				#might be an issue
+				Exit
+			Case $Button1
+				$inputInfo = GUICtrlRead($Input1)
+				$ifFirstOnly = GUICtrlRead($Checkbox1)
+				GUIDelete($Form1)
+		EndSwitch
+      WEnd
+	  ConsoleWrite(@LF & "input: " & $inputInfo & " box: " & $ifFirstOnly)
 	  $newTxt = StringSplit($file, "")
 	  $curTime = _NowTime()
 	  $curTime = StringSplit($curTime, "")
 	  if $curTime[2] == ":" then
-		 $newName = "INVSCAN_" & $sAnswer & "_T_" & $curTime[1] & $curTime[3] & $curTime[4] & $curTime[6] & $curTime[7]
+		 $newName = "INVSCAN_" & $inputInfo & "_T_" & $curTime[1] & $curTime[3] & $curTime[4] & $curTime[6] & $curTime[7]
 	  Else
-		 $newName = "INVSCAN_" & $sAnswer & "_T_" & $curTime[1] & $curTime[2] & $curTime[4] & $curTime[5] & $curTime[7] & $curTime[8]
+		 $newName = "INVSCAN_" & $inputInfo & "_T_" & $curTime[1] & $curTime[2] & $curTime[4] & $curTime[5] & $curTime[7] & $curTime[8]
 	  EndIf
-	  ConsoleWrite("Trying:  " & $file & "    " & $newName & $curTime[1] & $curTime[2] & $curTime[4] & $curTime[5] & $curTime[7] & $curTime[8])
+	  ConsoleWrite(@LF & "Trying:  " & $file & "    " & $newName & $curTime[1] & $curTime[2] & $curTime[4] & $curTime[5] & $curTime[7] & $curTime[8])
 	  FileMove( "C:\scans\" & $file , "C:\scans\" & $newName & ".pdf" )
-	  $askPageNumber = askDelPage()
-	  if $askPageNumber = 6 Then
-		 ConsoleWrite("pages test runs")
+	  if $ifFirstOnly = 1 Then
+		 ConsoleWrite(@LF & "pages test runs")
 		 $CMD = "pdftk " & $newName & ".pdf" & " cat 1 output " & $newName & "_C.pdf"
 		 ConsoleWrite(@LF & "trying to run " & $CMD)
 		 RunWait(@ComSpec & " /c " & $CMD)
